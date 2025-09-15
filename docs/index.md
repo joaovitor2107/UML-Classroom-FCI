@@ -2,9 +2,8 @@
 <h3><a href= "https://www.mackenzie.br/graduacao/sao-paulo-higienopolis/ciencia-da-computacao">Ciência da Computação</a></h3>
 
 
-<font size="+12"><center>
-*&lt;Sistema de Monitoramento Agrícola com Drones&gt;*
-</center></font>
+# Sistema de Monitoramento Agrícola com Drones
+
 
 **Conteúdo**
 
@@ -28,7 +27,17 @@
 
 # Descrição do Projeto
 
-*&lt;Introdução do projeto&gt;*
+## Contexto
+Uma cooperativa rural deseja monitorar plantações usando drones que realizam sobrevoos periódicos para coletar imagens e dados ambientais (temperatura, umidade e pragas).
+
+
+## Funcionalidades mínimas a implementar
+    - *Cadastro de áreas agrícolas* (tamanho, localização e tipo de cultivo).
+    - *Cadastro de drones* (ID, sensores disponíveis e status).
+    - *Agendamento de missões de voo* (data, área e sensores a utilizar).
+    - *Registro de dados coletados* (imagens e valores de sensores simulados).
+    - *Relatórios básicos sobre condições da plantação* (últimas medições e voos realizados).
+
 
 # Análise de Requisitos Funcionais e Não-Funcionais
 *&lt;Descrição dos requisitos&gt;*
