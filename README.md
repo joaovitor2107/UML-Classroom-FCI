@@ -10,18 +10,19 @@ Uma cooperativa rural deseja monitorar plantações usando drones que realizam s
 
 
 ## Funcionalidades mínimas a implementar
-    - *Cadastro de áreas agrícolas* (tamanho, localização e tipo de cultivo).
-    - *Cadastro de drones* (ID, sensores disponíveis e status).
-    - *Agendamento de missões de voo* (data, área e sensores a utilizar).
-    - *Registro de dados coletados* (imagens e valores de sensores simulados).
-    - *Relatórios básicos sobre condições da plantação* (últimas medições e voos realizados).
+- *Cadastro de áreas agrícolas* (tamanho, localização e tipo de cultivo).
+- *Cadastro de drones* (ID, sensores disponíveis e status).
+- *Agendamento de missões de voo* (data, área e sensores a utilizar).
+- *Registro de dados coletados* (imagens e valores de sensores simulados).
+- *Relatórios básicos sobre condições da plantação* (últimas medições e voos realizados).
 
 
 ## Requisitos de segurança
-    - Controle de acesso diferenciado (administrador e operador de drone).
-    - Validação para impedir *missões sobrepostas* no mesmo drone.
-    - Tratamento seguro de dados de sensores (evitar entradas inválidas ou corrompidas).
-    - Checklist de segurança antes do voo (bateria mínima e sensores funcionando).
+
+- Controle de acesso diferenciado (administrador e operador de drone).
+- Validação para impedir *missões sobrepostas* no mesmo drone.
+- Tratamento seguro de dados de sensores (evitar entradas inválidas ou corrompidas).
+- Checklist de segurança antes do voo (bateria mínima e sensores funcionando).
 
 
 # Documentação
