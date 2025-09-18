@@ -38,7 +38,7 @@ Uma cooperativa rural deseja monitorar plantações usando drones que realizam s
 
 # Diagrama de Classes
 
-<div class="mermaid">
+``` mermaid
 classDiagram
     class Usuario {
         -String id
@@ -128,7 +128,7 @@ classDiagram
     MissaoVoo o-- Imagem
     
     Sensor o-- DadoColetado
-</div>
+```
 
 
 # Diagrama de Sequência
@@ -146,6 +146,3 @@ classDiagram
 # Referências
 
 *&lt;Lista de referências&gt;*
-
-<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
-<script>mermaid.initialize({startOnLoad:true});</script>
