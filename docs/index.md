@@ -39,28 +39,105 @@ Uma cooperativa rural deseja monitorar plantações usando drones que realizam s
 - **Relatórios básicos sobre condições da plantação** (últimas medições e voos realizados).
 
 
-# Análise de Requisitos Funcionais e Não-Funcionais
-*&lt;Descrição dos requisitos&gt;*
 
-# Diagrama de Atividades
+# Diagrama de Classes
 
-*&lt;Diagrama para visualizer as pessoas das áreas de negócios e de desenvolvimento de uma organização para entender o processo e comportamento.&gt;*
+``` mermaid
+classDiagram
+    class Usuario {
+        -String id
+        -String nome
+        -String email
+        -String tipoUsuario
+        +autenticar() Boolean
+    }
+    
+    class Administrador {
+        +cadastrarArea() Boolean
+        +cadastrarDrone() Boolean
+    }
+    
+    class OperadorDrone {
+        +agendarMissao() Boolean
+        +executarMissao() Boolean
+    }
 
-# Diagrama de Casos de Uso
+    class AreaAgricola {
+        -String id
+        -String nome
+        -Double tamanho
+        -String localizacao
+        -String tipoCultivo
+    }
+    
+    class Drone {
+        -String id
+        -String modelo
+        -String status
+        -Double nivelBateria
+        +verificarBateria() Boolean
+    }
+    
+    class Sensor {
+        -String id
+        -String tipo
+        -String status
+        +validarFuncionamento() Boolean
+    }
 
-*&lt;Diagrama para visualizar o comportamento dos atores&gt;*
+    class MissaoVoo {
+        -String id
+        -DateTime dataAgendada
+        -String status
+        +validarSobreposicao() Boolean
+        +executar() Boolean
+    }
+    
+    class ChecklistSeguranca {
+        -Boolean bateriaOk
+        -Boolean sensoresOk
+        +executarChecklist() Boolean
+    }
 
-# Descrição dos Casos de Uso
+    class DadoColetado {
+        -String id
+        -DateTime timestamp
+        -Double temperatura
+        -Double umidade
+        -String pragas
+        +validarDado() Boolean
+    }
+    
+    class Imagem {
+        -String id
+        -DateTime timestamp
+        -String caminhoArquivo
+    }
 
-*&lt;Descrição do comportamento entre os atores/resquisitos&gt;*
+    class RelatorioPlantacao {
+        -String id
+        -DateTime dataGeracao
+        +gerarRelatorio() String
+    }
+
+    Usuario <|-- Administrador
+    Usuario <|-- OperadorDrone
+
+    Drone *-- Sensor
+    MissaoVoo *-- ChecklistSeguranca
+    
+    MissaoVoo o-- AreaAgricola
+    MissaoVoo o-- Drone
+    MissaoVoo o-- DadoColetado
+    MissaoVoo o-- Imagem
+    
+    Sensor o-- DadoColetado
+```
+
 
 # Diagrama de Sequência
 
 *&lt;Diagrama de ordem e interação dos objetos&gt;*
-
-# Diagrama de Classes
-
-*&lt;Diagrama de relacionamento entre classes para os seus atributos e operações&gt;*
 
 # Diagrama de Estados
 
