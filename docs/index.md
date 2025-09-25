@@ -484,8 +484,113 @@ erDiagram
 ```
 
 # Integração de modelos
+``` mermaid
+sequenceDiagram
+    participant O as OperadorDrone
+    participant CC as ControleCentral
+    participant BD as BancoDados
+    participant SM as SistemaMonitoramento
+    participant D as Drone
+    participant Sen as Sensor
+    participant DE as DetectorEventos
 
-*&lt;Diagrama para exibir o relacionamento de hardware e software no projeto&gt;*
+    Note over O, DE: Fase de Autenticação com BD
+    
+    O->>+CC: login(email, senha)
+    CC->>+BD: SELECT id, nome, tipo_usuario, senha_hash FROM usuario WHERE email=? AND ativo=TRUE
+    BD-->>-CC: ResultSet(dados_usuario)
+    CC->>CC: BCrypt.checkpw(senha, senha_hash)
+    CC-->>-O: autenticação OK
+
+    Note over O, DE: Fase de Coordenação com Validações BD
+    
+    O->>+CC: agendarMissao(areaId, droneId, dataAgendada)
+    CC->>+BD: SELECT * FROM area_agricola WHERE id=? AND ativo=TRUE
+    BD-->>-CC: area válida
+    
+    CC->>+BD: SELECT COUNT(*) FROM missao_voo WHERE drone_id=? AND status IN ('AGENDADA','EM_EXECUCAO') AND ABS(TIMESTAMPDIFF(MINUTE, data_agendada, ?)) < 120
+    BD-->>-CC: sem colisões
+    
+    CC->>+BD: INSERT INTO missao_voo (id, area_agricola_id, drone_id, operador_id, data_agendada, status, prioridade) VALUES (?,?,?,?,?,'AGENDADA','MEDIA')
+    BD-->>-CC: missão inserida
+    CC-->>-O: missão coordenada
+
+    Note over O, DE: Fase de Checklist com Persistência
+    
+    O->>+CC: executarMissao(missaoId)
+    CC->>+SM: iniciarMonitoramento()
+    SM->>+BD: INSERT INTO log_monitoramento (id, drone_id, tipo_evento, dados_json) VALUES (?,?,'STATUS_UPDATE','{"status":"monitoramento_iniciado"}')
+    BD-->>-SM: log registrado
+    SM-->>-CC: monitoramento ativo
+    
+    CC->>+D: executarChecklist()
+    D->>D: verificarBateria() → bateria_ok=TRUE
+    D->>Sen: validarFuncionamento() → sensores_ok=TRUE
+    D->>+BD: INSERT INTO checklist_seguranca (id, missao_id, bateria_ok, sensores_ok, condicao_meteorologica) VALUES (?,?,TRUE,TRUE,TRUE)
+    BD-->>-D: checklist salvo
+    
+    CC->>+DE: ativarDeteccao()
+    DE-->>-CC: detecção ativa
+
+    Note over O, DE: Fase de Execução com Transações BD
+    
+    CC->>+BD: UPDATE missao_voo SET status='EM_EXECUCAO', data_inicio=NOW() WHERE id=?
+    BD-->>-CC: status atualizado
+    
+    loop Durante a missão
+        D->>+Sen: coletarDados()
+        Sen->>Sen: temperatura=25.5, umidade=60.2, pragas=null
+        
+        %% Validação e armazenamento
+        Sen->>Sen: validarDado() → status='VALIDO'
+        Sen->>+BD: INSERT INTO dado_coletado (id, missao_id, sensor_id, timestamp_coleta, temperatura, umidade, pragas, status_validacao) VALUES (?,?,?,NOW(),?,?,?,'VALIDO')
+        BD-->>-Sen: dados salvos
+        
+        Sen->>+BD: INSERT INTO imagem (id, missao_id, timestamp_captura, caminho_arquivo, qualidade) VALUES (?,?,NOW(),?,?)
+        BD-->>-Sen: imagem salva
+        
+        Sen-->>-D: coleta finalizada
+        
+        %% Monitoramento contínuo
+        D->>+SM: enviarTelemetria(bateria=85%, posicao_lat, posicao_lng)
+        SM->>+BD: INSERT INTO log_monitoramento (id, drone_id, missao_id, tipo_evento, dados_json) VALUES (?,?,?,'TELEMETRIA','{"bateria":85,"lat":...,"lng":...}')
+        BD-->>-SM: telemetria registrada
+        SM-->>-D: status atualizado
+        
+        %% Detecção de eventos
+        DE->>DE: detectarEventoCritico() → bateria < 20%
+        
+        alt Evento crítico detectado
+            DE->>+BD: INSERT INTO evento_critico (id, drone_id, missao_id, tipo_evento, descricao, severidade) VALUES (?,?,?,'BATERIA_CRITICA','Nível de bateria abaixo de 20%','ALTA')
+            BD-->>-DE: evento registrado
+            
+            DE->>CC: notificarControleCentral()
+            DE->>O: notificarOperador()
+            
+            opt Emergência crítica
+                DE->>+BD: UPDATE evento_critico SET acao_tomada='Retorno de emergência acionado' WHERE id=?
+                BD-->>-DE: ação registrada
+                DE->>D: retornoEmergencia()
+            end
+        end
+    end
+
+    Note over O, DE: Fase de Finalização com Consolidação BD
+    
+    CC->>+BD: UPDATE missao_voo SET status='CONCLUIDA', data_fim=NOW() WHERE id=?
+    BD-->>-CC: missão finalizada
+    
+    CC->>+BD: SELECT dc.temperatura, dc.umidade, dc.pragas, dc.timestamp_coleta FROM dado_coletado dc JOIN missao_voo mv ON dc.missao_id = mv.id WHERE mv.id=? AND dc.status_validacao='VALIDO' ORDER BY dc.timestamp_coleta
+    BD-->>-CC: dados históricos
+    
+    CC->>+BD: INSERT INTO relatorio_plantacao (id, area_agricola_id, data_geracao, tipo_relatorio, caminho_arquivo) VALUES (?,?,NOW(),'RESUMO_MISSAO',?)
+    BD-->>-CC: relatório registrado
+    
+    CC-->>-O: missão finalizada
+
+    O->>CC: encerrarSessao()
+```
+
 
 # Referências
 
