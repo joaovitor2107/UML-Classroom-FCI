@@ -212,6 +212,7 @@ classDiagram
 
 # Diagrama de Sequência
 
+``` mermaid
 sequenceDiagram
     participant O as OperadorDrone
     participant CC as ControleCentral
@@ -342,6 +343,7 @@ sequenceDiagram
     CC-->>-O: missão finalizada
 
     O->>CC: encerrarSessao()
+```
 
 # Diagrama de Dados
 
