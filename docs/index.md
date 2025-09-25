@@ -347,7 +347,141 @@ sequenceDiagram
 
 # Diagrama de Dados
 
-*&lt;Diagrama para permite modelar o comportamento interno de um determinado objeto, subsistema ou sistema global&gt;*
+``` mermaid
+erDiagram
+    USUARIO {
+        VARCHAR(50) id PK
+        VARCHAR(100) nome
+        VARCHAR(100) email UK
+        ENUM tipo_usuario
+        VARCHAR(255) senha_hash
+        TIMESTAMP data_cadastro
+        BOOLEAN ativo
+    }
+    
+    AREA_AGRICOLA {
+        VARCHAR(50) id PK
+        VARCHAR(100) nome
+        DECIMAL(10,2) tamanho
+        VARCHAR(200) localizacao
+        VARCHAR(100) tipo_cultivo
+        TIMESTAMP data_cadastro
+        BOOLEAN ativo
+    }
+    
+    DRONE {
+        VARCHAR(50) id PK
+        VARCHAR(100) modelo
+        ENUM status
+        DECIMAL(5,2) nivel_bateria
+        DECIMAL(10,8) posicao_lat
+        DECIMAL(11,8) posicao_lng
+        TIMESTAMP data_cadastro
+        BOOLEAN ativo
+    }
+    
+    SENSOR {
+        VARCHAR(50) id PK
+        VARCHAR(50) drone_id FK
+        ENUM tipo
+        ENUM status
+        DECIMAL(5,2) precisao
+        TIMESTAMP data_calibracao
+    }
+    
+    MISSAO_VOO {
+        VARCHAR(50) id PK
+        VARCHAR(50) area_agricola_id FK
+        VARCHAR(50) drone_id FK
+        VARCHAR(50) operador_id FK
+        TIMESTAMP data_agendada
+        TIMESTAMP data_inicio
+        TIMESTAMP data_fim
+        ENUM status
+        ENUM prioridade
+        TEXT observacoes
+    }
+    
+    CHECKLIST_SEGURANCA {
+        VARCHAR(50) id PK
+        VARCHAR(50) missao_id FK
+        BOOLEAN bateria_ok
+        BOOLEAN sensores_ok
+        BOOLEAN condicao_meteorologica
+        TIMESTAMP data_execucao
+        TEXT observacoes
+    }
+    
+    DADO_COLETADO {
+        VARCHAR(50) id PK
+        VARCHAR(50) missao_id FK
+        VARCHAR(50) sensor_id FK
+        TIMESTAMP timestamp_coleta
+        DECIMAL(5,2) temperatura
+        DECIMAL(5,2) umidade
+        VARCHAR(200) pragas
+        ENUM status_validacao
+        TEXT observacoes_validacao
+    }
+    
+    IMAGEM {
+        VARCHAR(50) id PK
+        VARCHAR(50) missao_id FK
+        TIMESTAMP timestamp_captura
+        VARCHAR(500) caminho_arquivo
+        ENUM qualidade
+        BIGINT tamanho_arquivo
+    }
+    
+    EVENTO_CRITICO {
+        VARCHAR(50) id PK
+        VARCHAR(50) missao_id FK
+        VARCHAR(50) drone_id FK
+        ENUM tipo_evento
+        TEXT descricao
+        ENUM severidade
+        TIMESTAMP timestamp_evento
+        BOOLEAN resolvido
+        TEXT acao_tomada
+    }
+    
+    RELATORIO_PLANTACAO {
+        VARCHAR(50) id PK
+        VARCHAR(50) area_agricola_id FK
+        TIMESTAMP data_geracao
+        ENUM tipo_relatorio
+        DATE periodo_inicio
+        DATE periodo_fim
+        VARCHAR(500) caminho_arquivo
+    }
+    
+    LOG_MONITORAMENTO {
+        VARCHAR(50) id PK
+        VARCHAR(50) drone_id FK
+        VARCHAR(50) missao_id FK
+        TIMESTAMP timestamp_log
+        ENUM tipo_evento
+        JSON dados_json
+    }
+
+    %% Relacionamentos
+    USUARIO ||--o{ MISSAO_VOO : "operador_id"
+    AREA_AGRICOLA ||--o{ MISSAO_VOO : "area_agricola_id"
+    DRONE ||--o{ MISSAO_VOO : "drone_id"
+    DRONE ||--o{ SENSOR : "drone_id"
+    DRONE ||--o{ EVENTO_CRITICO : "drone_id"
+    DRONE ||--o{ LOG_MONITORAMENTO : "drone_id"
+    
+    MISSAO_VOO ||--|| CHECKLIST_SEGURANCA : "missao_id"
+    MISSAO_VOO ||--o{ DADO_COLETADO : "missao_id"
+    MISSAO_VOO ||--o{ IMAGEM : "missao_id"
+    MISSAO_VOO ||--o{ EVENTO_CRITICO : "missao_id"
+    MISSAO_VOO ||--o{ LOG_MONITORAMENTO : "missao_id"
+    
+    SENSOR ||--o{ DADO_COLETADO : "sensor_id"
+    AREA_AGRICOLA ||--o{ RELATORIO_PLANTACAO : "area_agricola_id"
+
+```
 
 # Integração de modelos
 
