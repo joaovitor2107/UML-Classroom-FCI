@@ -362,7 +362,7 @@ erDiagram
     AREA_AGRICOLA {
         VARCHAR(50) id PK
         VARCHAR(100) nome
-        DECIMAL(10,2) tamanho
+        DECIMAL tamanho
         VARCHAR(200) localizacao
         VARCHAR(100) tipo_cultivo
         TIMESTAMP data_cadastro
@@ -373,9 +373,9 @@ erDiagram
         VARCHAR(50) id PK
         VARCHAR(100) modelo
         ENUM status
-        DECIMAL(5,2) nivel_bateria
-        DECIMAL(10,8) posicao_lat
-        DECIMAL(11,8) posicao_lng
+        DECIMAL nivel_bateria
+        DECIMAL posicao_lat
+        DECIMAL posicao_lng
         TIMESTAMP data_cadastro
         BOOLEAN ativo
     }
@@ -385,7 +385,7 @@ erDiagram
         VARCHAR(50) drone_id FK
         ENUM tipo
         ENUM status
-        DECIMAL(5,2) precisao
+        DECIMAL precisao
         TIMESTAMP data_calibracao
     }
     
@@ -417,8 +417,8 @@ erDiagram
         VARCHAR(50) missao_id FK
         VARCHAR(50) sensor_id FK
         TIMESTAMP timestamp_coleta
-        DECIMAL(5,2) temperatura
-        DECIMAL(5,2) umidade
+        DECIMAL temperatura
+        DECIMAL umidade
         VARCHAR(200) pragas
         ENUM status_validacao
         TEXT observacoes_validacao
