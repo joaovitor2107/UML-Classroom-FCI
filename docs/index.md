@@ -13,6 +13,7 @@
 - [Diagrama de Senquencia](#diagrama-de-ordem-interações)
 - [Diagrama de Dados](#diagrama-estrutura-componente)
 - [Integração Modelos](#diagrama-de-hardware-software)
+- [Referências](#referências)
 
 
 # Autores
@@ -723,3 +724,6 @@ sequenceDiagram
 ```
 
 
+# Referências
+
+*&lt;Lista de referências&gt;*
