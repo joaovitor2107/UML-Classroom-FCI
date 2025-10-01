@@ -483,6 +483,138 @@ erDiagram
 
 ```
 
+# Tabelas sql
+```sql
+CREATE TABLE usuario (
+    id VARCHAR(50) PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    tipo_usuario ENUM('ADMINISTRADOR', 'OPERADOR_DRONE') NOT NULL,
+    senha_hash VARCHAR(255) NOT NULL,
+    data_cadastro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ativo BOOLEAN DEFAULT TRUE
+);
+
+CREATE TABLE area_agricola (
+    id VARCHAR(50) PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    tamanho DECIMAL(10,2) NOT NULL,
+    localizacao VARCHAR(200) NOT NULL,
+    tipo_cultivo VARCHAR(100) NOT NULL,
+    data_cadastro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ativo BOOLEAN DEFAULT TRUE
+);
+
+CREATE TABLE drone (
+    id VARCHAR(50) PRIMARY KEY,
+    modelo VARCHAR(100) NOT NULL,
+    status ENUM('DISPONIVEL', 'EM_MISSAO', 'MANUTENCAO', 'INATIVO') NOT NULL,
+    nivel_bateria DECIMAL(5,2) NOT NULL,
+    posicao_lat DECIMAL(10,8),
+    posicao_lng DECIMAL(11,8),
+    data_cadastro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ativo BOOLEAN DEFAULT TRUE
+);
+
+CREATE TABLE sensor (
+    id VARCHAR(50) PRIMARY KEY,
+    drone_id VARCHAR(50) NOT NULL,
+    tipo ENUM('TEMPERATURA', 'UMIDADE', 'PRAGA', 'CAMERA') NOT NULL,
+    status ENUM('ATIVO', 'INATIVO', 'DEFEITO') NOT NULL,
+    precisao DECIMAL(5,2),
+    data_calibracao TIMESTAMP,
+    FOREIGN KEY (drone_id) REFERENCES drone(id)
+);
+
+CREATE TABLE missao_voo (
+    id VARCHAR(50) PRIMARY KEY,
+    area_agricola_id VARCHAR(50) NOT NULL,
+    drone_id VARCHAR(50) NOT NULL,
+    operador_id VARCHAR(50) NOT NULL,
+    data_agendada TIMESTAMP NOT NULL,
+    data_inicio TIMESTAMP,
+    data_fim TIMESTAMP,
+    status ENUM('AGENDADA', 'EM_EXECUCAO', 'CONCLUIDA', 'CANCELADA', 'PAUSADA') NOT NULL,
+    prioridade ENUM('BAIXA', 'MEDIA', 'ALTA', 'CRITICA') DEFAULT 'MEDIA',
+    observacoes TEXT,
+    FOREIGN KEY (area_agricola_id) REFERENCES area_agricola(id),
+    FOREIGN KEY (drone_id) REFERENCES drone(id),
+    FOREIGN KEY (operador_id) REFERENCES usuario(id)
+);
+
+CREATE TABLE checklist_seguranca (
+    id VARCHAR(50) PRIMARY KEY,
+    missao_id VARCHAR(50) NOT NULL,
+    bateria_ok BOOLEAN NOT NULL,
+    sensores_ok BOOLEAN NOT NULL,
+    condicao_meteorologica BOOLEAN NOT NULL,
+    data_execucao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    observacoes TEXT,
+    FOREIGN KEY (missao_id) REFERENCES missao_voo(id)
+);
+
+CREATE TABLE dado_coletado (
+    id VARCHAR(50) PRIMARY KEY,
+    missao_id VARCHAR(50) NOT NULL,
+    sensor_id VARCHAR(50) NOT NULL,
+    timestamp_coleta TIMESTAMP NOT NULL,
+    temperatura DECIMAL(5,2),
+    umidade DECIMAL(5,2),
+    pragas VARCHAR(200),
+    status_validacao ENUM('VALIDO', 'SUSPEITO', 'INVALIDO') DEFAULT 'VALIDO',
+    observacoes_validacao TEXT,
+    FOREIGN KEY (missao_id) REFERENCES missao_voo(id),
+    FOREIGN KEY (sensor_id) REFERENCES sensor(id)
+);
+
+CREATE TABLE imagem (
+    id VARCHAR(50) PRIMARY KEY,
+    missao_id VARCHAR(50) NOT NULL,
+    timestamp_captura TIMESTAMP NOT NULL,
+    caminho_arquivo VARCHAR(500) NOT NULL,
+    qualidade ENUM('BAIXA', 'MEDIA', 'ALTA') NOT NULL,
+    tamanho_arquivo BIGINT,
+    FOREIGN KEY (missao_id) REFERENCES missao_voo(id)
+);
+
+CREATE TABLE evento_critico (
+    id VARCHAR(50) PRIMARY KEY,
+    missao_id VARCHAR(50),
+    drone_id VARCHAR(50),
+    tipo_evento ENUM('BATERIA_CRITICA', 'PERDA_COMUNICACAO', 'FALHA_SENSOR', 'CONDICAO_METEOROLOGICA') NOT NULL,
+    descricao TEXT NOT NULL,
+    severidade ENUM('BAIXA', 'MEDIA', 'ALTA', 'CRITICA') NOT NULL,
+    timestamp_evento TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    resolvido BOOLEAN DEFAULT FALSE,
+    acao_tomada TEXT,
+    FOREIGN KEY (missao_id) REFERENCES missao_voo(id),
+    FOREIGN KEY (drone_id) REFERENCES drone(id)
+);
+
+CREATE TABLE relatorio_plantacao (
+    id VARCHAR(50) PRIMARY KEY,
+    area_agricola_id VARCHAR(50) NOT NULL,
+    data_geracao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    tipo_relatorio ENUM('RESUMO_MISSAO', 'ANALISE_DADOS', 'HISTORICO_AREA') NOT NULL,
+    periodo_inicio DATE,
+    periodo_fim DATE,
+    caminho_arquivo VARCHAR(500),
+    FOREIGN KEY (area_agricola_id) REFERENCES area_agricola(id)
+);
+
+CREATE TABLE log_monitoramento (
+    id VARCHAR(50) PRIMARY KEY,
+    drone_id VARCHAR(50),
+    missao_id VARCHAR(50),
+    timestamp_log TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    tipo_evento ENUM('STATUS_UPDATE', 'TELEMETRIA', 'ALERTA', 'ERRO') NOT NULL,
+    dados_json JSON,
+    FOREIGN KEY (drone_id) REFERENCES drone(id),
+    FOREIGN KEY (missao_id) REFERENCES missao_voo(id)
+);
+```
+
+
 # Integração de modelos
 ``` mermaid
 sequenceDiagram
